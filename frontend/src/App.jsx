@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react'
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
+import Pricing from './pages/Pricing'
 
 function Header() {
   const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0()
   const [modalOpen, setModalOpen] = React.useState(false)
+  const location = useLocation()
 
   function openSignIn() {
     setModalOpen(true)
@@ -27,10 +30,12 @@ function Header() {
       <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="rounded-md px-3 py-2 font-bold">Applyperfect</div>
-          <nav className="hidden md:flex gap-6 ml-6">
-            <a className="hover:underline">Features</a>
-            <a className="hover:underline">Pricing</a>
-          </nav>
+          {location.pathname !== '/pricing' && (
+            <nav className="hidden md:flex gap-6 ml-6">
+              <a className="hover:underline" href="#features">Features</a>
+              <a className="hover:underline" href="/pricing">Pricing</a>
+            </nav>
+          )}
         </div>
         <div className="flex items-center gap-3">
           {!isAuthenticated && (
@@ -158,6 +163,7 @@ function MainApp(){
     <div>
   <Hero onUpload={handleUpload} resumeText={resumeText} setResumeText={setResumeText} jdText={jdText} setJdText={setJdText} runAnalyze={runAnalyze} analysis={analysis} />
       <Features />
+      
     </div>
   )
 }
@@ -168,11 +174,16 @@ export default function App(){
 
   return (
     <Auth0Provider domain={domain} clientId={clientId} authorizationParams={{redirect_uri: window.location.origin}}>
-      <div className="min-h-screen font-sans bg-gray-50">
-        <Header />
-        <MainApp />
-  <footer className="max-w-6xl mx-auto px-6 py-8 text-sm text-gray-500">© {new Date().getFullYear()} Applyperfect</footer>
-      </div>
+      <BrowserRouter>
+        <div className="min-h-screen font-sans bg-gray-50">
+          <Header />
+          <Routes>
+            <Route path="/" element={<MainApp />} />
+            <Route path="/pricing" element={<Pricing />} />
+          </Routes>
+          <footer className="max-w-6xl mx-auto px-6 py-8 text-sm text-gray-500">© {new Date().getFullYear()} Applyperfect</footer>
+        </div>
+      </BrowserRouter>
     </Auth0Provider>
   )
 }
