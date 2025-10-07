@@ -145,18 +145,20 @@ function MainApp(){
     if(!f) return
     const form = new FormData()
     form.append('file', f)
-    const res = await fetch('http://localhost:8000/upload', {method:'POST', body: form})
+    const api = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    const res = await fetch(`${api}/upload`, {method:'POST', body: form})
     const j = await res.json()
     setResumeText(j.text)
   }
 
   async function runAnalyze(){
-    const form = new FormData()
-    form.append('text', resumeText)
-    form.append('jd', jdText)
-    const res = await fetch('http://localhost:8000/analyze', {method:'POST', body: form})
-    const j = await res.json()
-    setAnalysis(j)
+  const form = new FormData()
+  form.append('text', resumeText)
+  form.append('jd', jdText)
+  const api = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  const res = await fetch(`${api}/analyze`, {method:'POST', body: form})
+  const j = await res.json()
+  setAnalysis(j)
   }
 
   return (

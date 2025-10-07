@@ -12,10 +12,16 @@ from reportlab.pdfgen import canvas
 
 app = FastAPI()
 
-# Allow CORS for local frontend during development
+# Configure CORS origins via ALLOWED_ORIGINS env var (comma-separated). Fallback to common localhost dev origins.
+allowed = os.getenv('ALLOWED_ORIGINS')
+if allowed:
+    origins = [o.strip() for o in allowed.split(',') if o.strip()]
+else:
+    origins = ["http://localhost:5173", "http://localhost:3000", "http://localhost:8000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
