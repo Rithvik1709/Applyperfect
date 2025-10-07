@@ -3,6 +3,8 @@ import { Auth0Provider } from '@auth0/auth0-react'
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Pricing from './pages/Pricing'
+import SubscriptionBanner from './components/SubscriptionBanner'
+import { useUser } from '@clerk/clerk-react'
 
 const AuthModalContext = React.createContext({
   modalOpen: false,
@@ -158,9 +160,31 @@ function MainApp(){
 export default function App(){
   const domain = import.meta.env.VITE_AUTH0_DOMAIN || 'YOUR_AUTH0_DOMAIN'
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID || 'YOUR_CLIENT_ID'
+  const { isLoaded, isSignedIn, user } = useUser()
   const [modalOpen, setModalOpen] = useState(false)
   const openModal = () => setModalOpen(true)
   const closeModal = () => setModalOpen(false)
+
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/'
+  const onPricing = pathname.toLowerCase().startsWith('/pricing')
+  const hasActive = user?.publicMetadata?.activeSubscription === true
+  const shouldBlock = isLoaded && isSignedIn && !hasActive && !onPricing
+
+  if (shouldBlock) {
+    return (
+      <AuthModalContext.Provider value={{ modalOpen, openModal, closeModal }}>
+        <div className="min-h-screen bg-white">
+          {/* Profile button in top-right while blocked */}
+          {isSignedIn && (
+            <div className="fixed top-4 right-4 z-50">
+              <UserButton />
+            </div>
+          )}
+          <SubscriptionBanner />
+        </div>
+      </AuthModalContext.Provider>
+    )
+  }
 
   return (
     <AuthModalContext.Provider value={{ modalOpen, openModal, closeModal }}>
@@ -168,6 +192,7 @@ export default function App(){
         <BrowserRouter>
           <div className="min-h-screen font-sans bg-gray-50">
             <Header />
+            <SubscriptionBanner />
             <Routes>
               <Route path="/" element={<MainApp />} />
               <Route path="/pricing" element={<Pricing />} />
