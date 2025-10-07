@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: applyperfect-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    branch: main
+    plan: free
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+
+static_sites:
+  - name: applyperfect-frontend
+    branch: main
+    buildCommand: "cd frontend && npm ci && npm run build"
+    publishPath: frontend/dist
+    plan: free
+    envVars:
+      - key: VITE_AUTH0_DOMAIN
+        sync: false
+      - key: VITE_AUTH0_CLIENT_ID
+        sync: false
