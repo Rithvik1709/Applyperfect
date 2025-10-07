@@ -5,3 +5,8 @@ __pycache__/
 *.pyc
 env/
 .env
+.env.*
+frontend/.env.local
+*.local
+*.secret
+.env.local
