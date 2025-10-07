@@ -62,22 +62,32 @@ function Header() {
       </div>
 
       {/* Modal overlay for sign-in */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black opacity-50" onClick={closeSignIn}></div>
-          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6 mx-4">
-            <button className="absolute top-3 right-3 rounded-md border p-1" onClick={closeModal}>✕</button>
-            <h3 className="text-xl font-semibold text-center mb-4">Continue to Applyperfect</h3>
-            <div className="mt-4">
-              <button onClick={signInWithGoogle} className="w-full border rounded-md py-3 flex items-center justify-center gap-3">
-                <svg width="20" height="20" viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg"><path d="M533.5 278.4c0-18.5-1.6-37.2-4.9-55.1H272v104.4h147.3c-6.4 34.6-25.4 63.9-54.4 83.5v69.4h87.8c51.4-47.3 81.8-117.2 81.8-202.2z" fill="#4285F4"/><path d="M272 544.3c73.5 0 135.3-24.3 180.4-65.9l-87.8-69.4c-24.4 16.4-55.6 26-92.6 26-71 0-131.3-47.9-152.8-112.4H31.5v70.5C76.5 487.9 167.7 544.3 272 544.3z" fill="#34A853"/><path d="M119.2 323.1c-10.8-32.3-10.8-66.9 0-99.2V153.4H31.5C11.3 192.4 0 236.4 0 278.4s11.3 86 31.5 124.9l87.7-69.4z" fill="#FBBC05"/><path d="M272 109.7c38.6 0 73.3 13.3 100.8 39.4l75.6-75.6C405.9 28.3 347.7 0 272 0 167.7 0 76.5 56.4 31.5 153.4l87.7 70.5C140.7 157.6 201 109.7 272 109.7z" fill="#EA4335"/></svg>
-                <span>Continue with Google</span>
-              </button>
+        {modalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black opacity-50" onClick={closeModal}></div>
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 mx-4">
+              <button className="absolute right-4 top-4 text-gray-400 hover:text-gray-700" onClick={closeModal} aria-label="Close">✕</button>
+              <h3 className="text-xl md:text-2xl font-semibold text-center mb-6">Continue to Applyperfect</h3>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={signInWithGoogle}
+                  className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg w-full max-w-md hover:shadow-sm focus:outline-none"
+                >
+                  <svg width="20" height="20" viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <path d="M533.5 278.4c0-18.5-1.6-37.2-4.9-55.1H272v104.4h147.3c-6.4 34.6-25.4 63.9-54.4 83.5v69.4h87.8c51.4-47.3 81.8-117.2 81.8-202.2z" fill="#4285F4"/>
+                    <path d="M272 544.3c73.5 0 135.3-24.3 180.4-65.9l-87.8-69.4c-24.4 16.4-55.6 26-92.6 26-71 0-131.3-47.9-152.8-112.4H31.5v70.5C76.5 487.9 167.7 544.3 272 544.3z" fill="#34A853"/>
+                    <path d="M119.2 323.1c-10.8-32.3-10.8-66.9 0-99.2V153.4H31.5C11.3 192.4 0 236.4 0 278.4s11.3 86 31.5 124.9l87.7-69.4z" fill="#FBBC05"/>
+                    <path d="M272 109.7c38.6 0 73.3 13.3 100.8 39.4l75.6-75.6C405.9 28.3 347.7 0 272 0 167.7 0 76.5 56.4 31.5 153.4l87.7 70.5C140.7 157.6 201 109.7 272 109.7z" fill="#EA4335"/>
+                  </svg>
+                  <span className="text-sm font-medium">Continue with Google</span>
+                </button>
+              </div>
+
+              <div className="mt-6 text-center text-xs text-gray-500 border-t pt-4">Secured by Auth0</div>
             </div>
-            <div className="mt-6 text-center text-sm text-gray-500">Secured by Auth0</div>
           </div>
-        </div>
-      )}
+        )}
     </header>
   )
 }
