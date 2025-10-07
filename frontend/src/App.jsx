@@ -33,7 +33,7 @@ function Header() {
           {location.pathname !== '/pricing' && (
             <nav className="hidden md:flex gap-6 ml-6">
               <a className="hover:underline" href="#features">Features</a>
-              <a className="hover:underline" href="/pricing">Pricing</a>
+              <Link className="hover:underline" to="/pricing">Pricing</Link>
             </nav>
           )}
         </div>
