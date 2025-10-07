@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { ClerkProvider, SignIn, useUser, useClerk } from '@clerk/clerk-react'
+import { Auth0Provider, useAuth0 } from '@auth0/auth0-react'
+import { ClerkProvider } from '@clerk/clerk-react'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Pricing from './pages/Pricing'
 
@@ -11,8 +12,7 @@ const AuthModalContext = React.createContext({
 
 
 function Header() {
-  const { user, isSignedIn } = useUser()
-  const clerk = useClerk()
+  const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0()
   const { modalOpen, openModal, closeModal } = React.useContext(AuthModalContext)
   const location = useLocation()
 
@@ -38,7 +38,7 @@ function Header() {
           )}
         </div>
         <div className="flex items-center gap-3">
-          {!isSignedIn && (
+          {!isAuthenticated && (
             <>
               <a href="https://x.com/BngRithvik" aria-label="X profile" className="inline-flex items-center justify-center" target="_blank" rel="noopener noreferrer">
                 <svg width="24" height="24" className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -48,15 +48,15 @@ function Header() {
               <button onClick={openModal} className="btn btn-primary">Sign In</button>
             </>
           )}
-          {isSignedIn && (
+          {isAuthenticated && (
             <>
               <a href="https://x.com/BngRithvik" aria-label="X profile" className="inline-flex items-center justify-center" target="_blank" rel="noopener noreferrer">
                 <svg width="24" height="24" className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                   <path d="M22.46 6c-.77.35-1.6.58-2.46.69.89-.53 1.57-1.37 1.89-2.37-.83.49-1.75.85-2.72 1.04a4.17 4.17 0 0 0-7.1 3.8A11.82 11.82 0 0 1 3.15 4.6a4.17 4.17 0 0 0 1.29 5.56c-.7-.02-1.36-.21-1.94-.53v.05c0 2.03 1.44 3.73 3.36 4.12-.35.1-.72.15-1.1.15-.27 0-.54-.03-.8-.08a4.18 4.18 0 0 0 3.9 2.9A8.38 8.38 0 0 1 2 19.54a11.82 11.82 0 0 0 6.29 1.84c7.55 0 11.68-6.26 11.68-11.68v-.53A8.36 8.36 0 0 0 22.46 6z" />
                 </svg>
               </a>
-              <span className="mr-3">{user?.fullName || user?.firstName || user?.email}</span>
-              <button onClick={() => clerk.signOut()} className="btn btn-secondary">Sign out</button>
+              <span className="mr-3">{user.name}</span>
+              <button onClick={() => logout({ returnTo: window.location.origin })} className="btn btn-secondary">Sign out</button>
             </>
           )}
         </div>
@@ -71,12 +71,21 @@ function Header() {
               <h3 className="text-xl md:text-2xl font-semibold text-center mb-6">Continue to Applyperfect</h3>
 
               <div className="flex justify-center">
-                <div className="w-full max-w-md">
-                  <SignIn routing="path" path="/sign-in" />
-                </div>
+                <button
+                  onClick={signInWithGoogle}
+                  className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg w-full max-w-md hover:shadow-sm focus:outline-none"
+                >
+                  <svg width="20" height="20" viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <path d="M533.5 278.4c0-18.5-1.6-37.2-4.9-55.1H272v104.4h147.3c-6.4 34.6-25.4 63.9-54.4 83.5v69.4h87.8c51.4-47.3 81.8-117.2 81.8-202.2z" fill="#4285F4"/>
+                    <path d="M272 544.3c73.5 0 135.3-24.3 180.4-65.9l-87.8-69.4c-24.4 16.4-55.6 26-92.6 26-71 0-131.3-47.9-152.8-112.4H31.5v70.5C76.5 487.9 167.7 544.3 272 544.3z" fill="#34A853"/>
+                    <path d="M119.2 323.1c-10.8-32.3-10.8-66.9 0-99.2V153.4H31.5C11.3 192.4 0 236.4 0 278.4s11.3 86 31.5 124.9l87.7-69.4z" fill="#FBBC05"/>
+                    <path d="M272 109.7c38.6 0 73.3 13.3 100.8 39.4l75.6-75.6C405.9 28.3 347.7 0 272 0 167.7 0 76.5 56.4 31.5 153.4l87.7 70.5C140.7 157.6 201 109.7 272 109.7z" fill="#EA4335"/>
+                  </svg>
+                  <span className="text-sm font-medium">Continue with Google</span>
+                </button>
               </div>
 
-              <div className="mt-6 text-center text-xs text-gray-500 border-t pt-4">Secured by Clerk</div>
+              <div className="mt-6 text-center text-xs text-gray-500 border-t pt-4">Secured by Auth0</div>
             </div>
           </div>
         )}
@@ -174,6 +183,7 @@ function MainApp(){
 export default function App(){
   const domain = import.meta.env.VITE_AUTH0_DOMAIN || 'YOUR_AUTH0_DOMAIN'
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID || 'YOUR_CLIENT_ID'
+  const clerkKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''
 
   const [modalOpen, setModalOpen] = useState(false)
   const openModal = () => setModalOpen(true)
@@ -181,18 +191,20 @@ export default function App(){
 
   return (
     <AuthModalContext.Provider value={{ modalOpen, openModal, closeModal }}>
-      <Auth0Provider domain={domain} clientId={clientId} authorizationParams={{redirect_uri: window.location.origin}}>
-        <BrowserRouter>
-          <div className="min-h-screen font-sans bg-gray-50">
-            <Header />
-            <Routes>
-              <Route path="/" element={<MainApp />} />
-              <Route path="/pricing" element={<Pricing />} />
-            </Routes>
-            <footer className="max-w-6xl mx-auto px-6 py-8 text-sm text-gray-500">© {new Date().getFullYear()} Applyperfect</footer>
-          </div>
-        </BrowserRouter>
-      </Auth0Provider>
+      <ClerkProvider publishableKey={clerkKey} __internal_bypassMissingPublishableKey={!clerkKey}>
+        <Auth0Provider domain={domain} clientId={clientId} authorizationParams={{redirect_uri: window.location.origin}}>
+          <BrowserRouter>
+            <div className="min-h-screen font-sans bg-gray-50">
+              <Header />
+              <Routes>
+                <Route path="/" element={<MainApp />} />
+                <Route path="/pricing" element={<Pricing />} />
+              </Routes>
+              <footer className="max-w-6xl mx-auto px-6 py-8 text-sm text-gray-500">© {new Date().getFullYear()} Applyperfect</footer>
+            </div>
+          </BrowserRouter>
+        </Auth0Provider>
+      </ClerkProvider>
     </AuthModalContext.Provider>
   )
 }
