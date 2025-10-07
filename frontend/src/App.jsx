@@ -3,18 +3,17 @@ import { Auth0Provider, useAuth0 } from '@auth0/auth0-react'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Pricing from './pages/Pricing'
 
+const AuthModalContext = React.createContext({
+  modalOpen: false,
+  openModal: () => {},
+  closeModal: () => {},
+})
+
+
 function Header() {
   const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0()
-  const [modalOpen, setModalOpen] = React.useState(false)
+  const { modalOpen, openModal, closeModal } = React.useContext(AuthModalContext)
   const location = useLocation()
-
-  function openSignIn() {
-    setModalOpen(true)
-  }
-
-  function closeSignIn() {
-    setModalOpen(false)
-  }
 
   async function signInWithGoogle() {
     // try popup first, else redirect
@@ -45,7 +44,7 @@ function Header() {
                   <path d="M22.46 6c-.77.35-1.6.58-2.46.69.89-.53 1.57-1.37 1.89-2.37-.83.49-1.75.85-2.72 1.04a4.17 4.17 0 0 0-7.1 3.8A11.82 11.82 0 0 1 3.15 4.6a4.17 4.17 0 0 0 1.29 5.56c-.7-.02-1.36-.21-1.94-.53v.05c0 2.03 1.44 3.73 3.36 4.12-.35.1-.72.15-1.1.15-.27 0-.54-.03-.8-.08a4.18 4.18 0 0 0 3.9 2.9A8.38 8.38 0 0 1 2 19.54a11.82 11.82 0 0 0 6.29 1.84c7.55 0 11.68-6.26 11.68-11.68v-.53A8.36 8.36 0 0 0 22.46 6z" />
                 </svg>
               </a>
-              <button onClick={openSignIn} className="btn btn-primary">Sign In</button>
+              <button onClick={openModal} className="btn btn-primary">Sign In</button>
             </>
           )}
           {isAuthenticated && (
@@ -67,7 +66,7 @@ function Header() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black opacity-50" onClick={closeSignIn}></div>
           <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6 mx-4">
-            <button className="absolute top-3 right-3 rounded-md border p-1" onClick={closeSignIn}>✕</button>
+            <button className="absolute top-3 right-3 rounded-md border p-1" onClick={closeModal}>✕</button>
             <h3 className="text-xl font-semibold text-center mb-4">Continue to Applyperfect</h3>
             <div className="mt-4">
               <button onClick={signInWithGoogle} className="w-full border rounded-md py-3 flex items-center justify-center gap-3">
@@ -84,7 +83,7 @@ function Header() {
 }
 
 function Hero({ onUpload, resumeText, setResumeText, jdText, setJdText, runAnalyze, analysis }) {
-  const { loginWithRedirect } = useAuth0()
+  const { openModal } = React.useContext(AuthModalContext)
   return (
     <section className="max-w-6xl mx-auto px-6 py-12">
       <div className="grid gap-8 items-center">
@@ -92,7 +91,7 @@ function Hero({ onUpload, resumeText, setResumeText, jdText, setJdText, runAnaly
           <h1 className="text-5xl md:text-6xl hero-title">Make your resume speak the job description</h1>
           <p className="mt-4 text-lg hero-sub">Upload your resume and paste the job description — Applyperfect aligns your skills, adds missing keywords, and produces an ATS-friendly resume.</p>
               <div className="mt-6 flex gap-3 justify-center">
-                <button onClick={() => loginWithRedirect()} className="btn btn-primary">Try Now</button>
+                <button onClick={() => openModal()} className="btn btn-primary">Try Now</button>
                 <button onClick={runAnalyze} className="btn btn-secondary">Demo</button>
               </div>
           
@@ -174,18 +173,24 @@ export default function App(){
   const domain = import.meta.env.VITE_AUTH0_DOMAIN || 'YOUR_AUTH0_DOMAIN'
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID || 'YOUR_CLIENT_ID'
 
+  const [modalOpen, setModalOpen] = useState(false)
+  const openModal = () => setModalOpen(true)
+  const closeModal = () => setModalOpen(false)
+
   return (
-    <Auth0Provider domain={domain} clientId={clientId} authorizationParams={{redirect_uri: window.location.origin}}>
-      <BrowserRouter>
-        <div className="min-h-screen font-sans bg-gray-50">
-          <Header />
-          <Routes>
-            <Route path="/" element={<MainApp />} />
-            <Route path="/pricing" element={<Pricing />} />
-          </Routes>
-          <footer className="max-w-6xl mx-auto px-6 py-8 text-sm text-gray-500">© {new Date().getFullYear()} Applyperfect</footer>
-        </div>
-      </BrowserRouter>
-    </Auth0Provider>
+    <AuthModalContext.Provider value={{ modalOpen, openModal, closeModal }}>
+      <Auth0Provider domain={domain} clientId={clientId} authorizationParams={{redirect_uri: window.location.origin}}>
+        <BrowserRouter>
+          <div className="min-h-screen font-sans bg-gray-50">
+            <Header />
+            <Routes>
+              <Route path="/" element={<MainApp />} />
+              <Route path="/pricing" element={<Pricing />} />
+            </Routes>
+            <footer className="max-w-6xl mx-auto px-6 py-8 text-sm text-gray-500">© {new Date().getFullYear()} Applyperfect</footer>
+          </div>
+        </BrowserRouter>
+      </Auth0Provider>
+    </AuthModalContext.Provider>
   )
 }
