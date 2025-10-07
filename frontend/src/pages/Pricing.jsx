@@ -1,9 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth0 } from '@auth0/auth0-react'
+import { SignInButton } from '@clerk/clerk-react'
 
 export default function Pricing(){
-  const { loginWithRedirect } = useAuth0()
 
   return (
     <main className="min-h-screen flex items-start bg-gray-50">
@@ -25,7 +24,9 @@ export default function Pricing(){
               <li className="flex items-center gap-3"><span className="text-green-600">✘</span>Access to Beta features</li>
             </ul>
             <div className="mt-8">
-              <button onClick={() => loginWithRedirect()} className="w-full btn btn-primary">Sign In to buy</button>
+              <SignInButton>
+                <button className="w-full btn btn-primary">Sign In to buy</button>
+              </SignInButton>
             </div>
           </div>
 
@@ -38,7 +39,9 @@ export default function Pricing(){
               <li className="flex items-center gap-3"><span className="text-green-600">✘</span>Access to Beta features</li>
             </ul>
             <div className="mt-8">
-              <button onClick={() => loginWithRedirect()} className="w-full btn btn-primary">Sign In to buy</button>
+              <SignInButton>
+                <button className="w-full btn btn-primary">Sign In to buy</button>
+              </SignInButton>
             </div>
           </div>
 
@@ -51,7 +54,9 @@ export default function Pricing(){
               <li className="flex items-center gap-3"><span className="text-green-600">✓</span>Access to Beta features</li>
             </ul>
             <div className="mt-8">
-              <button onClick={() => loginWithRedirect()} className="w-full btn btn-primary">Sign In to buy</button>
+              <SignInButton>
+                <button className="w-full btn btn-primary">Sign In to buy</button>
+              </SignInButton>
             </div>
           </div>
         </div>
